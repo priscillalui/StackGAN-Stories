@@ -280,6 +280,7 @@ class TextDataset(data.Dataset):
         with open(filepath, 'rb') as f:
             filenames = pickle.load(f)
         print('Load filenames from: %s (%d)' % (filepath, len(filenames)))
+        print('%d total filenames' % len(filenames))
         return filenames
 
     def prepair_training_pairs(self, index):
@@ -327,6 +328,124 @@ class TextDataset(data.Dataset):
         # captions = self.captions[key]
         embeddings = self.embeddings[index, :, :]
         img_name = '%s/images/%s.jpg' % (data_dir, key)
+        imgs = get_imgs(img_name, self.imsize,
+                        bbox, self.transform, normalize=self.norm)
+
+        if self.target_transform is not None:
+            embeddings = self.target_transform(embeddings)
+
+        return imgs, embeddings, key  # captions
+
+    def __getitem__(self, index):
+        return self.iterator(index)
+
+    def __len__(self):
+        return len(self.filenames)
+
+
+class ChildrensBookIllustrationsDataset(data.Dataset):
+    """Children's Book Illustrations Dataset."""
+
+    def __init__(self, data_dir, img_dir, split='train',
+                base_size=64, transform=None, target_transform=None):
+        """
+        Args:
+            data_dir (string): Directory to the train and test splits.
+            img_dir (string): Directory with all the images.
+            split (string): Either train or test.
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+        """
+        self.img_dir = img_dir
+        self.transform = transform
+        self.norm = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        self.target_transform = target_transform
+
+        self.imsize = []
+        for i in range(cfg.TREE.BRANCH_NUM):
+            self.imsize.append(base_size)
+            base_size = base_size * 2
+
+        self.data_dir = data_dir
+        split_dir = os.path.join(data_dir, split)
+
+        self.filenames = self.load_filenames(split_dir)
+        self.embeddings = self.load_embedding(split_dir)
+        self.class_id = self.load_class_ids(split_dir)
+        self.captions = self.load_all_captions(split_dir)
+
+        if cfg.TRAIN.FLAG:
+            self.iterator = self.prepair_training_pairs
+        else:
+            self.iterator = self.prepair_test_pairs
+
+    def load_all_captions(self, data_dir):
+        with open(data_dir + '/captions.pickle', 'rb') as f:
+            captions = pickle.load(f)
+        caption_dict = {}
+        for idx,key in enumerate(self.filenames):
+            caption_dict[key] = captions[idx]
+        return caption_dict
+
+    def load_embedding(self, data_dir):
+        with open(data_dir + '/embeddings.pickle', 'rb') as f:
+            embeddings = pickle.load(f)
+            embeddings = np.array(embeddings)
+            num_zeros = 1024 - len(embeddings[0])
+            embeddings = np.pad(embeddings, (0, num_zeros), 'constant')
+            # embedding_shape = [embeddings.shape[-1]]
+            print('Num zeros to pad:', num_zeros)
+            print('Zero-padded to 1024 embeddings shape:', embeddings.shape)
+        return embeddings
+
+    def load_class_ids(self, data_dir):
+        with open(data_dir + '/book_ids.pickle', 'rb') as f:
+            class_ids = pickle.load(f)
+        return class_ids
+
+    def load_filenames(self, data_dir):
+        filepath = os.path.join(data_dir, 'image_filenames.pickle')
+        with open(filepath, 'rb') as f:
+            filenames = pickle.load(f)
+        print('Load filenames from: %s (%d)' % (filepath, len(filenames)))
+        print('%d total filenames' % len(filenames))
+        return filenames
+
+    def prepair_training_pairs(self, index):
+        key = self.filenames[index]
+        data_dir = self.data_dir
+        img_dir = self.img_dir
+        # captions = self.captions[key]
+        embeddings = self.embeddings[index]
+        img_name = '%s/%s.jpg' % (img_dir, key)
+        bbox=None
+        imgs = get_imgs(img_name, self.imsize,
+                        bbox, self.transform, normalize=self.norm)
+        wrong_ix = random.randint(0, len(self.filenames) - 1)
+        if(self.class_id[index] == self.class_id[wrong_ix]):
+            wrong_ix = random.randint(0, len(self.filenames) - 1)
+        wrong_key = self.filenames[wrong_ix]
+        wrong_bbox = None
+        wrong_img_name = '%s/%s.jpg' % (img_dir, wrong_key)
+        wrong_imgs = get_imgs(wrong_img_name, self.imsize,
+                              wrong_bbox, self.transform, normalize=self.norm)
+
+        embedding_ix = random.randint(0, embeddings.shape[0] - 1)
+        embedding = embeddings[embedding_ix]
+        if self.target_transform is not None:
+            embedding = self.target_transform(embedding)
+
+        return imgs, wrong_imgs, embedding, key  # captions
+
+    def prepair_test_pairs(self, index):
+        key = self.filenames[index]
+        bbox = None
+        data_dir = self.data_dir
+        # captions = self.captions[key]
+        embeddings = self.embeddings[index]
+        img_name = '%s/%s.jpg' % (img_dir, key)
         imgs = get_imgs(img_name, self.imsize,
                         bbox, self.transform, normalize=self.norm)
 

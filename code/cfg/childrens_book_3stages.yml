@@ -1,0 +1,37 @@
+CONFIG_NAME: '3stages'
+
+DATASET_NAME: 'childrens_books'
+EMBEDDING_TYPE: ''
+DATA_DIR: '/home/ubuntu/cs236g/data'
+IMG_DIR: '/home/ubuntu/cs236g/Dataset/images'
+GPU_ID: '0'
+WORKERS: 4
+
+
+TREE:
+    BRANCH_NUM: 3
+
+
+TRAIN:
+    FLAG: True
+    NET_G: ''  # '../output/birds_3stages/Model/netG_epoch_700.pth'
+    NET_D: ''  # '../output/birds_3stages/Model/netD'
+    BATCH_SIZE: 24
+    MAX_EPOCH: 600
+    SNAPSHOT_INTERVAL: 2000
+    DISCRIMINATOR_LR: 0.0002
+    GENERATOR_LR: 0.0002
+    COEFF:
+      UNCOND_LOSS: 1.0
+
+
+GAN:
+    EMBEDDING_DIM: 128
+    DF_DIM: 64
+    GF_DIM: 64
+    Z_DIM: 100
+    R_NUM: 2
+    B_CONDITION: True
+
+TEXT:
+    DIMENSION: 1024 # 768 text embeddings get padded to 1024

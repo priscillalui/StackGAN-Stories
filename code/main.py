@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     split_dir, bshuffle = 'train', True
     if not cfg.TRAIN.FLAG:
-        if cfg.DATASET_NAME == 'birds':
+        if cfg.DATASET_NAME == 'birds' or cfg.DATASET_NAME == 'childrens_books':
             bshuffle = False
             split_dir = 'test'
 
@@ -119,6 +119,11 @@ if __name__ == "__main__":
         from datasets import ImageFolder
         dataset = ImageFolder(cfg.DATA_DIR, split_dir='train',
                               custom_classes=CLASS_DIC[cfg.DATASET_NAME],
+                              base_size=cfg.TREE.BASE_SIZE,
+                              transform=image_transform)
+    elif cfg.DATASET_NAME == 'childrens_books':
+        from datasets import ChildrensBookIllustrationsDataset
+        dataset = ChildrensBookIllustrationsDataset(cfg.DATA_DIR, cfg.IMG_DIR, split_dir,
                               base_size=cfg.TREE.BASE_SIZE,
                               transform=image_transform)
     elif cfg.GAN.B_CONDITION:  # text to image task

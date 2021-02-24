@@ -287,7 +287,7 @@ class GANTrainer(object):
         optD.step()
         # log
         if flag == 0:
-            summary_D = summary.scalar('D_loss%d' % idx, errD.data[0])
+            summary_D = summary.scalar('D_loss%d' % idx, errD.data.item())
             self.summary_writer.add_summary(summary_D, count)
         return errD
 
@@ -306,7 +306,7 @@ class GANTrainer(object):
             # errG = self.stage_coeff[i] * errG
             errG_total = errG_total + errG
             if flag == 0:
-                summary_G = summary.scalar('G_loss%d' % i, errG.data[0])
+                summary_G = summary.scalar('G_loss%d' % i, errG.data.item())
                 self.summary_writer.add_summary(summary_G, count)
 
         # Compute color preserve losses
@@ -329,14 +329,14 @@ class GANTrainer(object):
                 errG_total = errG_total + like_mu1 + like_cov1
 
             if flag == 0:
-                sum_mu = summary.scalar('G_like_mu2', like_mu2.data[0])
+                sum_mu = summary.scalar('G_like_mu2', like_mu2.data.item())
                 self.summary_writer.add_summary(sum_mu, count)
-                sum_cov = summary.scalar('G_like_cov2', like_cov2.data[0])
+                sum_cov = summary.scalar('G_like_cov2', like_cov2.data.item())
                 self.summary_writer.add_summary(sum_cov, count)
                 if self.num_Ds > 2:
-                    sum_mu = summary.scalar('G_like_mu1', like_mu1.data[0])
+                    sum_mu = summary.scalar('G_like_mu1', like_mu1.data.item())
                     self.summary_writer.add_summary(sum_mu, count)
-                    sum_cov = summary.scalar('G_like_cov1', like_cov1.data[0])
+                    sum_cov = summary.scalar('G_like_cov1', like_cov1.data.item())
                     self.summary_writer.add_summary(sum_cov, count)
 
         errG_total.backward()
@@ -406,14 +406,14 @@ class GANTrainer(object):
                 predictions.append(pred.data.cpu().numpy())
 
                 if count % 100 == 0:
-                    summary_D = summary.scalar('D_loss', errD_total.data[0])
-                    summary_G = summary.scalar('G_loss', errG_total.data[0])
+                    summary_D = summary.scalar('D_loss', errD_total.data.item())
+                    summary_G = summary.scalar('G_loss', errG_total.data.item())
                     self.summary_writer.add_summary(summary_D, count)
                     self.summary_writer.add_summary(summary_G, count)
                 if step == 0:
                     print('''[%d/%d][%d/%d] Loss_D: %.2f Loss_G: %.2f'''
                            % (epoch, self.max_epoch, step, self.num_batches,
-                              errD_total.data[0], errG_total.data[0]))
+                              errD_total.data.item(), errG_total.data.item()))
                 count = count + 1
 
                 if count % cfg.TRAIN.SNAPSHOT_INTERVAL == 0:
@@ -604,7 +604,7 @@ class condGANTrainer(object):
         optD.step()
         # log
         if flag == 0:
-            summary_D = summary.scalar('D_loss%d' % idx, errD.data[0])
+            summary_D = summary.scalar('D_loss%d' % idx, errD.data)
             self.summary_writer.add_summary(summary_D, count)
         return errD
 
@@ -624,7 +624,7 @@ class condGANTrainer(object):
                 errG = errG + errG_patch
             errG_total = errG_total + errG
             if flag == 0:
-                summary_D = summary.scalar('G_loss%d' % i, errG.data[0])
+                summary_D = summary.scalar('G_loss%d' % i, errG.data)
                 self.summary_writer.add_summary(summary_D, count)
 
         # Compute color consistency losses
@@ -638,9 +638,9 @@ class condGANTrainer(object):
                     nn.MSELoss()(covariance1, covariance2)
                 errG_total = errG_total + like_mu2 + like_cov2
                 if flag == 0:
-                    sum_mu = summary.scalar('G_like_mu2', like_mu2.data[0])
+                    sum_mu = summary.scalar('G_like_mu2', like_mu2.data.item())
                     self.summary_writer.add_summary(sum_mu, count)
-                    sum_cov = summary.scalar('G_like_cov2', like_cov2.data[0])
+                    sum_cov = summary.scalar('G_like_cov2', like_cov2.data.item())
                     self.summary_writer.add_summary(sum_cov, count)
             if self.num_Ds > 2:
                 mu1, covariance1 = compute_mean_covariance(self.fake_imgs[-2])
@@ -651,9 +651,9 @@ class condGANTrainer(object):
                     nn.MSELoss()(covariance1, covariance2)
                 errG_total = errG_total + like_mu1 + like_cov1
                 if flag == 0:
-                    sum_mu = summary.scalar('G_like_mu1', like_mu1.data[0])
+                    sum_mu = summary.scalar('G_like_mu1', like_mu1.data.item())
                     self.summary_writer.add_summary(sum_mu, count)
-                    sum_cov = summary.scalar('G_like_cov1', like_cov1.data[0])
+                    sum_cov = summary.scalar('G_like_cov1', like_cov1.data.item())
                     self.summary_writer.add_summary(sum_cov, count)
 
         kl_loss = KL_loss(mu, logvar) * cfg.TRAIN.COEFF.KL
@@ -733,9 +733,9 @@ class condGANTrainer(object):
                 predictions.append(pred.data.cpu().numpy())
 
                 if count % 100 == 0:
-                    summary_D = summary.scalar('D_loss', errD_total.data[0])
-                    summary_G = summary.scalar('G_loss', errG_total.data[0])
-                    summary_KL = summary.scalar('KL_loss', kl_loss.data[0])
+                    summary_D = summary.scalar('D_loss', errD_total.data.item())
+                    summary_G = summary.scalar('G_loss', errG_total.data.item())
+                    summary_KL = summary.scalar('KL_loss', kl_loss.data.item())
                     self.summary_writer.add_summary(summary_D, count)
                     self.summary_writer.add_summary(summary_G, count)
                     self.summary_writer.add_summary(summary_KL, count)
@@ -775,8 +775,8 @@ class condGANTrainer(object):
                          Loss_D: %.2f Loss_G: %.2f Loss_KL: %.2f Time: %.2fs
                       '''  # D(real): %.4f D(wrong):%.4f  D(fake) %.4f
                   % (epoch, self.max_epoch, self.num_batches,
-                     errD_total.data[0], errG_total.data[0],
-                     kl_loss.data[0], end_t - start_t))
+                     errD_total.data.item(), errG_total.data.item(),
+                     kl_loss.data.item(), end_t - start_t))
 
         save_model(self.netG, avg_param_G, self.netsD, count, self.model_dir)
         self.summary_writer.close()
