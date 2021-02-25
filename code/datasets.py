@@ -393,11 +393,11 @@ class ChildrensBookIllustrationsDataset(data.Dataset):
         with open(data_dir + '/embeddings.pickle', 'rb') as f:
             embeddings = pickle.load(f)
             embeddings = np.array(embeddings)
-            num_zeros = 1024 - len(embeddings[0])
-            embeddings = np.pad(embeddings, (0, num_zeros), 'constant')
-            # embedding_shape = [embeddings.shape[-1]]
-            print('Num zeros to pad:', num_zeros)
-            print('Zero-padded to 1024 embeddings shape:', embeddings.shape)
+            # num_zeros = 1024 - len(embeddings[0])
+            # embeddings = np.pad(embeddings, (0, num_zeros), 'constant')
+            # # embedding_shape = [embeddings.shape[-1]]
+            # print('Num zeros to pad:', num_zeros)
+            # print('Zero-padded to 1024 embeddings shape:', embeddings.shape)
         return embeddings
 
     def load_class_ids(self, data_dir):
@@ -432,11 +432,16 @@ class ChildrensBookIllustrationsDataset(data.Dataset):
         wrong_imgs = get_imgs(wrong_img_name, self.imsize,
                               wrong_bbox, self.transform, normalize=self.norm)
 
-        embedding_ix = random.randint(0, embeddings.shape[0] - 1)
-        embedding = embeddings[embedding_ix]
+        # birds has 10 embeddings per image, but children's book only has 1
+        if data_dir.find('birds') != -1:
+            embedding_ix = random.randint(0, embeddings.shape[0] - 1)
+            embedding = embeddings[embedding_ix]
+        else:
+            embedding = embeddings
         if self.target_transform is not None:
             embedding = self.target_transform(embedding)
 
+        # print("[datasets.py] embedding.shape:", embedding.shape)
         return imgs, wrong_imgs, embedding, key  # captions
 
     def prepair_test_pairs(self, index):

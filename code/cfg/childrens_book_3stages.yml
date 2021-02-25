@@ -34,4 +34,4 @@ GAN:
     B_CONDITION: True
 
 TEXT:
-    DIMENSION: 1024 # 768 text embeddings get padded to 1024
+    DIMENSION: 768 # 768 text embeddings get padded to 1024

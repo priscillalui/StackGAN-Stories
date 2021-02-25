@@ -259,6 +259,7 @@ class G_NET(nn.Module):
 
     def forward(self, z_code, text_embedding=None):
         if cfg.GAN.B_CONDITION and text_embedding is not None:
+            # print("[model.py] Text embedding shape:", text_embedding.shape)
             c_code, mu, logvar = self.ca_net(text_embedding)
         else:
             c_code, mu, logvar = z_code, None, None

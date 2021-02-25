@@ -530,6 +530,7 @@ class condGANTrainer(object):
             mkdir_p(self.image_dir)
             mkdir_p(self.log_dir)
             self.summary_writer = FileWriter(self.log_dir)
+            print("Sumary writer log_dir: %s", self.log_dir)
 
         s_gpus = cfg.GPU_ID.split(',')
         self.gpus = [int(ix) for ix in s_gpus]
@@ -546,6 +547,7 @@ class condGANTrainer(object):
 
     def prepare_data(self, data):
         imgs, w_imgs, t_embedding, _ = data
+        # print("[trainer.py -- prepare_data] t_embedding.shape:", t_embedding.shape)
 
         real_vimgs, wrong_vimgs = [], []
         if cfg.CUDA:
@@ -699,12 +701,15 @@ class condGANTrainer(object):
         for epoch in range(start_epoch, self.max_epoch):
             start_t = time.time()
 
+            print("Epoch: %d. Starting %d total steps." % (epoch, len(self.data_loader)))
             for step, data in enumerate(self.data_loader, 0):
+                print("Train Step: %d, Count: %d" % (step, count))
                 #######################################################
                 # (0) Prepare training data
                 ######################################################
                 self.imgs_tcpu, self.real_imgs, self.wrong_imgs, \
                     self.txt_embedding = self.prepare_data(data)
+                # print("[trainer.py] Text embedding shape:", self.txt_embedding.shape)
 
                 #######################################################
                 # (1) Generate fake images
