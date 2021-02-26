@@ -16,7 +16,7 @@ Please clone the [central project repo](https://github.com/priscillalui/cs236g) 
   
  
 **Pretrained Model**
-- Adjust config to go to the pth files in the /models directory in this repo.
+- [StackGAN-v2 for children's books](https://drive.google.com/drive/folders/11QHGJfiZK4NiegbMBASSs_gH7blgZgk4?usp=sharing). Download and save it to `models/`. Adjust config to go to these pth files.
 
 
 
