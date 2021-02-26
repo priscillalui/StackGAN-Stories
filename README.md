@@ -1,3 +1,32 @@
+# StackGAN-v2 on a custom dataset of illustrated children's books
+This is a baseline model for a final project for cs236G. This repo will be integrated into our [central project repo](https://github.com/priscillalui/cs236g) by milestone 2. 
+
+### Dependencies
+Please refer to the Dependencies section in the original Readme text below the double lines.
+
+**Data**
+
+Please clone the [central project repo](https://github.com/priscillalui/cs236g) in the same directory level as your clone of this repo.
+
+
+**Training**
+
+- Train a StackGAN-v2 model on the children's book data
+  -  `python main.py --cfg cfg/childrens_book_3stages.yml --gpu 0`
+  
+ 
+**Pretrained Model**
+- Adjust config to go to the pth files in the /models directory in this repo.
+
+
+
+**Evaluating**
+- Coming soon.
+
+#
+#
+
+
 # StackGAN-v2
 
 - [StackGAN-v1: Tensorflow implementation](https://github.com/hanzhanggit/StackGAN)
